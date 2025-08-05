@@ -33,7 +33,7 @@ if ("webkitSpeechRecognition" in window) {
     fetchController = new AbortController();
 
     try {
-      // Wake up the backend before sending the main request
+     
       await fetch("https://voicebot-backend-j7la.onrender.com/health");
 
       const res = await fetch("https://voicebot-backend-j7la.onrender.com/ask", {
