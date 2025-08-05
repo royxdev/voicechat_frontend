@@ -1,0 +1,144 @@
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #2563eb;
+  --danger-color: #ef4444;
+  --bg-color: #f5f6fa;
+  --white: #ffffff;
+  --text-color: #1f2937;
+  --muted-text: #6b7280;
+  --font-main: 'Inter', 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Container */
+.container {
+  background-color: var(--white);
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Heading */
+h1 {
+  font-size: 1.9rem;
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+button {
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  min-width: 130px;
+}
+
+#startBtn {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+#startBtn:hover:enabled {
+  background-color: #1e40af;
+}
+
+#stopBtn {
+  background-color: var(--danger-color);
+  color: var(--white);
+}
+
+#stopBtn:hover:enabled {
+  background-color: #b91c1c;
+}
+
+button:disabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Output Section */
+.output p {
+  font-size: 1.05rem;
+  margin-top: 1rem;
+  line-height: 1.5;
+  color: var(--muted-text);
+}
+
+strong {
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+#questionText,
+#responseText {
+  display: inline-block;
+  margin-top: 0.4rem;
+  color: var(--text-color);
+  font-style: italic;
+  word-wrap: break-word;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: 2rem 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  button {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .output p {
+    font-size: 0.95rem;
+  }
+}
