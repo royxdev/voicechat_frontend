@@ -6,13 +6,11 @@ const responseText = document.getElementById("responseText");
 let recognition;
 let fetchController = null;
 let currentUtterance = null;
-
+let recognitionIsRunning = false;
 
 function isAnythingRunning() {
   return recognitionIsRunning || window.speechSynthesis.speaking || currentUtterance;
 }
-
-let recognitionIsRunning = false;
 
 if ("webkitSpeechRecognition" in window) {
   recognition = new webkitSpeechRecognition();
@@ -20,47 +18,57 @@ if ("webkitSpeechRecognition" in window) {
   recognition.continuous = false;
   recognition.interimResults = false;
 
-  recognition.onstart = function() {
+  recognition.onstart = function () {
     console.log("Speech recognition started");
     recognitionIsRunning = true;
     startBtn.disabled = true;
     stopBtn.disabled = false;
   };
 
-  recognition.onresult = async function(event) {
+  recognition.onresult = async function (event) {
     const transcript = event.results[0][0].transcript;
     console.log("Speech recognized:", transcript);
     questionText.innerText = transcript;
 
     fetchController = new AbortController();
+
     try {
+      // Wake up the backend before sending the main request
+      await fetch("https://voicebot-backend-j7la.onrender.com/health");
+
       const res = await fetch("https://voicebot-backend-j7la.onrender.com/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: transcript }),
-        signal: fetchController.signal
+        signal: fetchController.signal,
       });
+
       const data = await res.json();
       responseText.innerText = data.response;
 
       const synth = window.speechSynthesis;
       currentUtterance = new SpeechSynthesisUtterance(data.response);
       stopBtn.disabled = false;
-      currentUtterance.onend = function() {
+
+      currentUtterance.onend = function () {
         console.log("Speech synthesis ended");
         currentUtterance = null;
+
         if (!isAnythingRunning()) {
           startBtn.disabled = false;
           stopBtn.disabled = true;
         }
       };
+
       synth.speak(currentUtterance);
     } catch (error) {
       if (error.name === "AbortError") {
         console.log("Fetch aborted");
       } else {
         console.error("Fetch error:", error);
+        responseText.innerText = "Something went wrong.";
       }
+
       if (!isAnythingRunning()) {
         startBtn.disabled = false;
         stopBtn.disabled = true;
@@ -72,10 +80,11 @@ if ("webkitSpeechRecognition" in window) {
     }
   };
 
-  recognition.onerror = function(event) {
+  recognition.onerror = function (event) {
     console.error("Speech recognition error:", event.error);
     responseText.innerText = `Speech recognition error: ${event.error}`;
     recognitionIsRunning = false;
+
     if (!isAnythingRunning()) {
       startBtn.disabled = false;
       stopBtn.disabled = true;
@@ -84,9 +93,10 @@ if ("webkitSpeechRecognition" in window) {
     }
   };
 
-  recognition.onend = function() {
+  recognition.onend = function () {
     console.log("Speech recognition ended");
     recognitionIsRunning = false;
+
     if (!isAnythingRunning()) {
       startBtn.disabled = false;
       stopBtn.disabled = true;
@@ -94,6 +104,10 @@ if ("webkitSpeechRecognition" in window) {
       stopBtn.disabled = false;
     }
   };
+} else {
+  alert("Your browser does not support webkitSpeechRecognition.");
+  startBtn.disabled = true;
+  stopBtn.disabled = true;
 }
 
 startBtn.addEventListener("click", () => {
@@ -106,15 +120,19 @@ startBtn.addEventListener("click", () => {
 stopBtn.addEventListener("click", () => {
   console.log("Stop button pressed");
 
+  // Stop recognition
   if (recognitionIsRunning) {
     recognition.abort();
     recognitionIsRunning = false;
   }
 
+  // Abort fetch request if running
   if (fetchController) {
     fetchController.abort();
+    fetchController = null;
   }
 
+  // Stop voice
   if (window.speechSynthesis.speaking || currentUtterance) {
     window.speechSynthesis.cancel();
     currentUtterance = null;
